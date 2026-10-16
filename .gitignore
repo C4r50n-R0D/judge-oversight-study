@@ -1,0 +1,9 @@
+config.json
+env.sh
+.env
+runs/
+judge_cache/
+data/
+__pycache__/
+*.pyc
+.DS_Store

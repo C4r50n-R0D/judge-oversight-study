@@ -1,40 +1,47 @@
-# Judge-gated oversight of AI-written code
+# Can an AI judge be trusted to approve code it can't run?
 
-An empirical, pre-registered research project on when an automated LLM judge that **cannot run the code** can be trusted to approve AI-written code, and where it fails.
+An empirical research project on how far an automated LLM judge that **cannot run the code** can be trusted to approve AI-written code, which kinds of defects it misses, and how easily confident but false commentary sways it.
 
-**Status (read this first):** early stage. Study designs and a draft pre-registration are public here. Experiment code will be released after the pre-registration is frozen. **No test-split data has been collected or analyzed.** Nothing here is a result.
+**Status (read this first):** early stage. The study design is public here. The hypotheses and decision rules will be written down and frozen before any test data is touched. **No test data has been collected or analyzed, and nothing here is a result.**
 
-## The two studies
+## Why
 
-**Study 1: judge-gated escalation.** A small local model (Qwen 2.5 Coder 7B on a MacBook) writes a draft, and an outcome-blind judge decides whether to accept it or escalate to a hosted model (Claude Sonnet). Can a judge keep accuracy near always using the hosted model while spending less? After a rejection, is it better to retry locally or to escalate? Extends Chen (2026). Pre-registration draft: [`docs/study-1-preregistration-draft.md`](docs/study-1-preregistration-draft.md).
+As AI systems get more capable, people and weaker models will increasingly have to check work they cannot easily verify themselves. Code is a useful small-scale stand-in for that problem, because correctness can be measured exactly with hidden test suites. This project measures where judge-based oversight of code breaks, using a cheap and reproducible testbed.
 
-**Study 2: judge reliability as oversight.** Three questions on tasks with exact ground truth: does judge accuracy fall as the code writer outgrows the judge; which planted defects does the judge miss; and how much does confident but false commentary shift its approvals? Design outline: [`docs/study-2-companion-design.md`](docs/study-2-companion-design.md).
+## Three questions
+
+1. **Weak-to-strong oversight.** Does judge accuracy fall as the code-writing model gets stronger than the judge?
+2. **Subtle-flaw detection.** Which planted defects (off-by-one errors, boundary mistakes, dropped edge cases) does the judge miss, including defects the visible tests would also catch and defects they would not?
+3. **Manipulation robustness.** How much does confident but false commentary ("verified against all edge cases") shift the judge's approvals of wrong code?
+
+Details: [`docs/study-design.md`](docs/study-design.md).
 
 ## What exists today
 
-- A tested evaluation pipeline (generation, sandboxed EvalPlus scoring, cached judge labeling, spend ledger, cluster-bootstrap analysis), not yet released in this repository.
-- A draft pre-registration for Study 1, revised after an independent methods and code review.
-- Phase 0 setup findings on the real benchmark data: two reference solutions fail in the pinned environment (HumanEval/32, Mbpp/255) and are excluded, and a default memory cap made correct solutions fail at random, so scoring uses explicit memory limits.
-- A literature search log: [`docs/literature-notes.md`](docs/literature-notes.md). The broad claim that nobody has studied local-to-hosted handoff is false; the open gap is narrower.
+- An evaluation pipeline, not yet released in this repository: generation, sandboxed scoring with the official EvalPlus harness in a container, cached judge labeling, spend tracking, and cluster-bootstrap statistics. It passes unit tests and a mock end-to-end run.
+- Setup findings on the real benchmark data: two reference solutions (HumanEval/32 and Mbpp/255) fail in the pinned environment and are excluded, and a default memory cap made correct solutions fail at random, so scoring uses explicit memory limits.
+- Early literature notes: [`docs/literature-notes.md`](docs/literature-notes.md).
 
 ## What does not exist yet
 
-The calibration pilot, the main data collection, the Study 2 defect-planting and annotation module, and the Study 2 pre-registration.
+The calibration pilot, the defect-planting and annotation module, the frozen pre-registration, and all data collection.
+
+## Plan
+
+1. Run a calibration-only pilot (up to 20 tasks) to measure real cost, speed, and judge behavior, and finalize the design before any test data is touched.
+2. Build the defect-planting and annotation module on top of the existing scoring and judging code.
+3. Freeze the pre-registration, run the full collection, and publish the code, the pre-registration, and the results, including null and negative ones.
 
 ## Scope and limitations
 
-Short Python coding problems, small open-weight models plus Claude, and public benchmarks that are probably in training data. This is a cheap, reproducible testbed, not a general claim about scalable oversight.
-
-## Principles
-
-Hypotheses and decision rules are fixed in writing before test data is touched. Deviations are logged in [`DEVIATIONS.md`](DEVIATIONS.md). Null and negative results will be reported in full.
+Short Python coding problems, small open-weight models plus Claude, and public benchmarks that are probably in training data. This is a cheap, reproducible testbed that produces concrete numbers and a reusable method. It does not claim to settle scalable oversight.
 
 ## Documents
 
-- [Study 1 pre-registration (draft)](docs/study-1-preregistration-draft.md)
-- [Study 2 design outline](docs/study-2-companion-design.md)
+- [Study design](docs/study-design.md)
 - [Literature notes](docs/literature-notes.md)
 - [Budget estimate](docs/budget.md)
+- [Deviations log](DEVIATIONS.md)
 
 ## License
 
